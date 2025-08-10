@@ -3,335 +3,218 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>RDP - Gestion Hospitalière</title>
+<title>RDP - Gestion Hospitalière (Complet & Espacé)</title>
 <style>
   :root{
-    --bg:#f9fafb;
-    --text:#111827;
-    --accent:#0d9488;
-    --muted:#6b7280;
-    --place:#2563eb;
-    --transition-active:#f97316;
-    --transition-disabled:#94a3b8;
-    --token-fill:#dc2626;
-    --token-stroke:#facc15;
-    --table-head:#e0f2f1;
-    --table-border:#cbd5e1;
+    --bg:#f9fafb; --text:#111827; --accent:#0d9488; --muted:#6b7280;
+    --place:#2563eb; --trans-act:#f97316; --trans-dis:#94a3b8;
+    --token-fill:#dc2626; --token-stroke:#facc15;
+    --pre-stroke:#9ca3af; --post-stroke:#10b981;
+    --table-head:#e0f2f1; --table-border:#cbd5e1;
   }
   *{box-sizing:border-box}
   body{
-    margin:0;
-    font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
-    background:var(--bg);
-    color:var(--text);
+    margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+    background:var(--bg); color:var(--text);
   }
-  header{
-    padding:14px 20px;
-    text-align:center;
-    background:#ffffff;
-    border-bottom:1px solid var(--table-border);
-  }
-  header h1{margin:0;color:var(--accent);font-size:20px}
-  .wrap{
-    display:flex; gap:18px; padding:18px; align-items:flex-start;
-    max-width:1200px; margin:0 auto;
-  }
-  .canvas{
-    background:#ffffff;
-    border-radius:10px;
-    padding:12px;
-    border:1px solid var(--table-border);
-    box-shadow:0 1px 3px rgba(0,0,0,0.05);
-  }
-  svg{display:block; background:transparent;}
+  header{ padding:14px 20px; text-align:center; background:#fff; border-bottom:1px solid var(--table-border); }
+  header h1{ margin:0; color:var(--accent); font-size:20px; }
+  .main{ max-width:1300px; margin:18px auto; padding:12px; }
+
+  /* layout */
+  .top-row{ display:flex; gap:12px; align-items:flex-start; }
+  .canvas{ flex:1; background:#fff; border-radius:10px; padding:12px; border:1px solid var(--table-border); box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  svg{ width:100%; height:720px; display:block; background:transparent; }
+
+  /* places / transitions visual */
   .place { fill:none; stroke:var(--place); stroke-width:2; }
-  .transition {
-    fill:var(--transition-active); stroke:var(--transition-active);
-    stroke-width:2; cursor:pointer; transition:fill .12s, transform .08s;
-  }
-  .transition.disabled{
-    fill:var(--transition-disabled); stroke:var(--transition-disabled);
-    cursor:not-allowed; opacity:.6;
-  }
-  .transition.firing { filter: drop-shadow(0 4px 8px rgba(249,115,22,0.18)); }
-  .token { fill:var(--token-fill); stroke:var(--token-stroke); stroke-width:1; }
-  .movingToken { fill:var(--token-fill); stroke:var(--token-stroke); stroke-width:1.4; opacity:0.98; }
-  text.label { fill:var(--text); font-size:13px; font-weight:700; pointer-events:none; }
-  .info{
-    flex:0 0 420px;
-    background:#ffffff;
-    border-radius:10px;
-    padding:12px;
-    border:1px solid var(--table-border);
-    box-shadow:0 1px 3px rgba(0,0,0,0.05);
-  }
-  h3{color:var(--accent); margin:8px 0 6px 0; font-size:15px;}
-  ul{margin:6px 0 12px 18px; color:var(--muted); padding:0;}
-  table{width:100%; border-collapse:collapse; font-size:13px; color:var(--text);}
-  th,td{border:1px solid var(--table-border); padding:6px 8px; text-align:center;}
-  th{background:var(--table-head); color:var(--accent);}
-  .marq{margin-top:10px; color:var(--muted);}
-  .chips{display:flex;flex-wrap:wrap; gap:6px; margin-top:8px;}
-  .chip{
-    background:var(--table-head);
-    padding:6px 8px;
-    border-radius:999px;
-    font-size:13px;
-    color:var(--text);
-    border:1px solid var(--table-border);
-  }
-  .controls{display:flex; gap:8px; margin-top:10px;}
-  .btn{
-    background:var(--accent);
-    border:0;
-    color:white;
-    padding:8px 10px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:700
-  }
-  .btn.warn{background:var(--transition-active);}
-  .log{
-    height:120px; overflow:auto; margin-top:8px;
-    background:#f3f4f6; padding:8px; border-radius:6px;
-    color:var(--muted); font-size:13px;
-    border:1px solid var(--table-border);
-    white-space:pre-wrap;
-  }
-  footer{
-    padding:10px 20px; color:var(--muted);
-    font-size:13px; text-align:center;
-    border-top:1px solid var(--table-border);
-    background:#ffffff;
-  }
-  @media (max-width:1100px){
-    .wrap{flex-direction:column; align-items:stretch}
-    .info{flex:auto}
-  }
+  .transition { fill:var(--trans-act); stroke:var(--trans-act); stroke-width:2; cursor:pointer; transition:transform .08s, opacity .12s; }
+  .transition.disabled{ fill:var(--trans-dis); stroke:var(--trans-dis); cursor:not-allowed; opacity:.6; }
+  .transition.firing{ filter:drop-shadow(0 8px 18px rgba(249,115,22,0.16)); transform:scale(1.02); }
+  text.label{ fill:var(--text); font-size:13px; font-weight:700; pointer-events:none; }
+
+  /* sidebar */
+  .sidebar{ width:320px; background:#fff; border-radius:8px; padding:12px; border:1px solid var(--table-border); }
+  h3{ color:var(--accent); margin:6px 0; font-size:14px; }
+  ul{ margin:6px 0 10px 16px; color:var(--muted); font-size:13px; }
+
+  /* bottom row: matrices and log */
+  .bottom-row{ display:flex; gap:12px; margin-top:14px; flex-wrap:wrap; }
+  .col{ background:#fff; border-radius:8px; padding:8px; border:1px solid var(--table-border); box-shadow:0 1px 2px rgba(0,0,0,0.03); font-size:13px; flex:1; min-width:220px; }
+  table{ width:100%; border-collapse:collapse; font-size:12px; color:var(--text); }
+  th,td{ border:1px solid var(--table-border); padding:4px 6px; text-align:center; }
+  th{ background:var(--table-head); color:var(--accent); font-size:12px; }
+
+  .chip{ background:var(--table-head); padding:6px 8px; border-radius:999px; font-size:12px; color:var(--text); border:1px solid var(--table-border); margin:4px 6px 6px 0; display:inline-block; }
+  .controls{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+  .btn{ background:var(--accent); border:0; color:white; padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:700; font-size:13px; }
+  .btn.warn{ background:var(--trans-act); }
+  .log{ height:160px; overflow:auto; background:#f3f4f6; padding:8px; border-radius:6px; color:var(--muted); font-size:12px; border:1px solid var(--table-border); white-space:pre-wrap; }
+
+  /* small screens */
+  @media (max-width:1200px){ .top-row{ flex-direction:column } .sidebar{ width:100% } }
+  @media (max-width:800px){ svg{ height:520px } }
 </style>
 </head>
 <body>
 <header>
   <h1>Réseau de Petri — Gestion Hospitalière</h1>
-  <div style="color:var(--muted); font-size:13px; margin-top:6px;">Les jetons se déplacent le long des arcs lors du tirage.</div>
+  <div style="color:var(--muted); text-align:center; margin-top:6px;">Arcs Pre = gris, Post = vert — jetons animés le long des arcs</div>
 </header>
 
-<div class="wrap">
-  <!-- Left: SVG canvas -->
-  <div class="canvas" aria-hidden="false">
-    <svg id="petri" width="1000" height="600" viewBox="0 0 1000 600" role="img" aria-label="Graphe du Réseau de Petri hospitalier">
-      <defs>
-        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto" markerUnits="strokeWidth">
-          <path d="M0,0 L0,8 L8,4 z" fill="var(--muted)"/>
-        </marker>
-      </defs>
+<div class="main">
+  <div class="top-row">
+    <!-- canvas / graphe -->
+    <div class="canvas" aria-label="Graphe Réseau de Petri">
+      <svg id="petri" viewBox="0 0 1100 720" role="img" aria-label="Graphe RDP Hôpital">
+        <defs>
+          <!-- arrow markers for pre/post with color -->
+          <marker id="arrowPre" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L0,8 L8,4 z" fill="var(--pre-stroke)"/>
+          </marker>
+          <marker id="arrowPost" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L0,8 L8,4 z" fill="var(--post-stroke)"/>
+          </marker>
+        </defs>
 
-      <!-- group for arcs (under places) -->
-      <g id="arcs"></g>
+        <!-- Arcs group (under places) -->
+        <g id="arcs"></g>
 
-      <!-- Places TOP -->
-      <circle id="p1" class="place" cx="120" cy="120" r="28"/>
-      <text class="label" x="120" y="160" text-anchor="middle">P1 — Salle attente</text>
+        <!-- --- Places (top row y=150, bottom y=480) --- -->
+        <circle id="p1" class="place" cx="120" cy="150" r="30"/>
+        <text class="label" x="120" y="200" text-anchor="middle">P1 — Salle attente</text>
 
-      <circle id="p2" class="place" cx="320" cy="120" r="28"/>
-      <text class="label" x="320" y="160" text-anchor="middle">P2 — Médecin libre</text>
+        <circle id="p2" class="place" cx="380" cy="150" r="30"/>
+        <text class="label" x="380" y="200" text-anchor="middle">P2 — Médecin libre</text>
 
-      <circle id="p3" class="place" cx="520" cy="120" r="28"/>
-      <text class="label" x="520" y="160" text-anchor="middle">P3 — En consultation</text>
+        <circle id="p3" class="place" cx="640" cy="150" r="30"/>
+        <text class="label" x="640" y="200" text-anchor="middle">P3 — En consultation</text>
 
-      <circle id="p4" class="place" cx="720" cy="120" r="28"/>
-      <text class="label" x="720" y="160" text-anchor="middle">P4 — Attente examen</text>
+        <circle id="p4" class="place" cx="900" cy="150" r="30"/>
+        <text class="label" x="900" y="200" text-anchor="middle">P4 — Attente examen</text>
 
-      <!-- Places BOTTOM -->
-      <circle id="p5" class="place" cx="320" cy="420" r="28"/>
-      <text class="label" x="320" y="460" text-anchor="middle">P5 — Salle exam libre</text>
+        <circle id="p5" class="place" cx="380" cy="480" r="30"/>
+        <text class="label" x="380" y="530" text-anchor="middle">P5 — Salle exam libre</text>
 
-      <circle id="p6" class="place" cx="520" cy="420" r="28"/>
-      <text class="label" x="520" y="460" text-anchor="middle">P6 — En examen</text>
+        <circle id="p6" class="place" cx="640" cy="480" r="30"/>
+        <text class="label" x="640" y="530" text-anchor="middle">P6 — En examen</text>
 
-      <circle id="p7" class="place" cx="720" cy="420" r="28"/>
-      <text class="label" x="720" y="460" text-anchor="middle">P7 — Prêt sortie</text>
+        <circle id="p7" class="place" cx="900" cy="480" r="30"/>
+        <text class="label" x="900" y="530" text-anchor="middle">P7 — Prêt sortie</text>
 
-      <!-- Transitions (rectangles) -->
-      <rect id="t1" class="transition" x="60" y="110" width="24" height="40" rx="4" ry="4"/>
-      <text class="label" x="72" y="170" text-anchor="middle">T1</text>
+        <!-- --- Transitions (placed between places, spaced out) --- -->
+        <!-- T1 near between P1-P2 (source/arrival) -->
+        <rect id="t1" class="transition" x="240" y="130" width="28" height="60" rx="5" ry="5"/>
+        <text class="label" x="254" y="210" text-anchor="middle">T1</text>
 
-      <rect id="t2" class="transition" x="270" y="95" width="24" height="50" rx="4" ry="4"/>
-      <text class="label" x="282" y="170" text-anchor="middle">T2</text>
+        <!-- T2 between P2-P3 -->
+        <rect id="t2" class="transition" x="460" y="130" width="28" height="60" rx="5" ry="5"/>
+        <text class="label" x="474" y="210" text-anchor="middle">T2</text>
 
-      <rect id="t3" class="transition" x="470" y="95" width="24" height="50" rx="4" ry="4"/>
-      <text class="label" x="482" y="170" text-anchor="middle">T3</text>
+        <!-- T3 between P3-P4 -->
+        <rect id="t3" class="transition" x="720" y="130" width="28" height="60" rx="5" ry="5"/>
+        <text class="label" x="734" y="210" text-anchor="middle">T3</text>
 
-      <rect id="t4" class="transition" x="470" y="400" width="24" height="50" rx="4" ry="4"/>
-      <text class="label" x="482" y="470" text-anchor="middle">T4</text>
+        <!-- T4 between P5-P6 (lower) -->
+        <rect id="t4" class="transition" x="460" y="440" width="28" height="60" rx="5" ry="5"/>
+        <text class="label" x="474" y="520" text-anchor="middle">T4</text>
 
-      <rect id="t5" class="transition" x="670" y="400" width="24" height="50" rx="4" ry="4"/>
-      <text class="label" x="682" y="470" text-anchor="middle">T5</text>
+        <!-- T5 between P6-P7 (lower) -->
+        <rect id="t5" class="transition" x="720" y="440" width="28" height="60" rx="5" ry="5"/>
+        <text class="label" x="734" y="520" text-anchor="middle">T5</text>
 
-      <!-- tokens (static) will be appended by JS -->
-    </svg>
+        <!-- moving tokens will be created dynamically by JS -->
+      </svg>
+    </div>
+
+    <!-- sidebar: places + transitions + controls -->
+    <div class="sidebar" aria-label="Places et Transitions">
+      <h3>Places (P)</h3>
+      <ul>
+        <li><strong>P1</strong> — Salle d’attente</li>
+        <li><strong>P2</strong> — Médecin libre</li>
+        <li><strong>P3</strong> — Patient en consultation</li>
+        <li><strong>P4</strong> — Patient en attente d’examen</li>
+        <li><strong>P5</strong> — Salle d’examen libre</li>
+        <li><strong>P6</strong> — Patient en examen</li>
+        <li><strong>P7</strong> — Patient prêt à sortir</li>
+      </ul>
+
+      <h3>Transitions (T)</h3>
+      <ul>
+        <li><strong>T1</strong> — Arrivée patient (source)</li>
+        <li><strong>T2</strong> — Début consultation (P1 + P2 → P3)</li>
+        <li><strong>T3</strong> — Fin consultation → orientation examen (P3 → P2 + P4)</li>
+        <li><strong>T4</strong> — Début examen (P4 + P5 → P6)</li>
+        <li><strong>T5</strong> — Fin examen → sortie (P6 → P5 + P7)</li>
+      </ul>
+
+      <div style="margin-top:8px">
+        <h3>Contrôles</h3>
+        <div class="controls">
+          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn warn" id="autoBtn">Auto-step</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Right: info / matrices -->
-  <div class="info" role="region" aria-label="Informations réseau de Petri">
-    <h3>Places (P)</h3>
-    <ul>
-      <li><strong>P1</strong> : Salle d’attente</li>
-      <li><strong>P2</strong> : Médecin libre</li>
-      <li><strong>P3</strong> : Patient en consultation</li>
-      <li><strong>P4</strong> : Patient en attente d’examen</li>
-      <li><strong>P5</strong> : Salle d’examen libre</li>
-      <li><strong>P6</strong> : Patient en examen</li>
-      <li><strong>P7</strong> : Patient prêt à sortir</li>
-    </ul>
-
-    <h3>Transitions (T)</h3>
-    <ul>
-      <li><strong>T1</strong> : Arrivée patient (source)</li>
-      <li><strong>T2</strong> : Début consultation (P1 + P2 → P3)</li>
-      <li><strong>T3</strong> : Fin consultation → orientation examen (P3 → P2 + P4)</li>
-      <li><strong>T4</strong> : Début examen (P4 + P5 → P6)</li>
-      <li><strong>T5</strong> : Fin examen → sortie (P6 → P5 + P7)</li>
-    </ul>
-
-    <h3>Matrice Pre</h3>
-    <div id="preTable"></div>
-
-    <h3>Matrice Post</h3>
-    <div id="postTable"></div>
-
-    <h3>Matrice W = Post − Pre</h3>
-    <div id="wTable"></div>
-
-    <div class="marq">
-      <strong>Marquage courant</strong>
-      <div class="chips" id="chips"></div>
+  <!-- bottom row: matrices + marquage + log -->
+  <div class="bottom-row" aria-label="Matrices et journaux">
+    <div class="col" id="colPre"><h3>Matrice Pre</h3><div id="preTable"></div></div>
+    <div class="col" id="colPost"><h3>Matrice Post</h3><div id="postTable"></div></div>
+    <div class="col" id="colW"><h3>Matrice W = Post - Pre</h3><div id="wTable"></div></div>
+    <div class="col" id="colLog">
+      <h3>Marquage courant</h3>
+      <div id="chips" style="margin-bottom:8px;"></div>
+      <h3>Log</h3>
+      <div class="log" id="log"></div>
     </div>
-
-    <div class="controls">
-      <button class="btn" id="resetBtn">Reset</button>
-      <button class="btn warn" id="autoBtn">Auto-step</button>
-    </div>
-
-    <h3>Log</h3>
-    <div class="log" id="log"></div>
   </div>
 </div>
 
-<footer>©2025,Kiass Bro — Projet pédagogique — Réseau de Petri : Gestion Hospitalière</footer>
-
 <script>
-/* ------------- Données du modèle ------------- */
+/* ===================== Model ===================== */
 const placeKeys = ['p1','p2','p3','p4','p5','p6','p7'];
 const transKeys  = ['t1','t2','t3','t4','t5'];
 
 // marquage initial
-const initialMarking = {
-  p1:0, p2:1, p3:0, p4:0, p5:1, p6:0, p7:0
-};
-const places = JSON.parse(JSON.stringify(initialMarking));
+const initialMarking = { p1:0, p2:1, p3:0, p4:0, p5:1, p6:0, p7:0 };
+let places = JSON.parse(JSON.stringify(initialMarking));
 
-// Pre / Post
+// Pre / Post definitions
 const Pre = {
-  t1: {p1:0,p2:0,p3:0,p4:0,p5:0,p6:0,p7:0},
-  t2: {p1:1,p2:1,p3:0,p4:0,p5:0,p6:0,p7:0},
-  t3: {p1:0,p2:0,p3:1,p4:0,p5:0,p6:0,p7:0},
-  t4: {p1:0,p2:0,p3:0,p4:1,p5:1,p6:0,p7:0},
-  t5: {p1:0,p2:0,p3:0,p4:0,p5:0,p6:1,p7:0}
+  t1:{p1:0,p2:0,p3:0,p4:0,p5:0,p6:0,p7:0},
+  t2:{p1:1,p2:1,p3:0,p4:0,p5:0,p6:0,p7:0},
+  t3:{p1:0,p2:0,p3:1,p4:0,p5:0,p6:0,p7:0},
+  t4:{p1:0,p2:0,p3:0,p4:1,p5:1,p6:0,p7:0},
+  t5:{p1:0,p2:0,p3:0,p4:0,p5:0,p6:1,p7:0}
 };
 const Post = {
-  t1: {p1:1,p2:0,p3:0,p4:0,p5:0,p6:0,p7:0},
-  t2: {p1:0,p2:0,p3:1,p4:0,p5:0,p6:0,p7:0},
-  t3: {p1:0,p2:1,p3:0,p4:1,p5:0,p6:0,p7:0},
-  t4: {p1:0,p2:0,p3:0,p4:0,p5:0,p6:1,p7:0},
-  t5: {p1:0,p2:0,p3:0,p4:0,p5:1,p6:0,p7:1}
+  t1:{p1:1,p2:0,p3:0,p4:0,p5:0,p6:0,p7:0},
+  t2:{p1:0,p2:0,p3:1,p4:0,p5:0,p6:0,p7:0},
+  t3:{p1:0,p2:1,p3:0,p4:1,p5:0,p6:0,p7:0},
+  t4:{p1:0,p2:0,p3:0,p4:0,p5:0,p6:1,p7:0},
+  t5:{p1:0,p2:0,p3:0,p4:0,p5:1,p6:0,p7:1}
 };
-function computeW(pre, post){
+function computeW(pre,post){
   const W = {};
   for(const t of transKeys){
     W[t] = {};
-    for(const p of placeKeys){
-      W[t][p] = (post[t][p]||0) - (pre[t][p]||0);
-    }
+    for(const p of placeKeys) W[t][p] = (post[t][p]||0) - (pre[t][p]||0);
   }
   return W;
 }
 const W = computeW(Pre, Post);
 
-/* ------------- Utilitaires SVG & DOM ------------- */
-const svgNS = "http://www.w3.org/2000/svg";
-const svg = document.getElementById('petri');
-const arcsGroup = document.getElementById('arcs');
-
-function getCenterOf(id){
-  const el = document.getElementById(id);
-  if(!el) return null;
-  if(el.tagName.toLowerCase() === 'circle'){
-    return { x: Number(el.getAttribute('cx')), y: Number(el.getAttribute('cy')) };
-  } else if(el.tagName.toLowerCase() === 'rect'){
-    const x = Number(el.getAttribute('x')), y = Number(el.getAttribute('y'));
-    const w = Number(el.getAttribute('width')), h = Number(el.getAttribute('height'));
-    return { x: x + w/2, y: y + h/2 };
-  }
-  return null;
-}
-function cubicPathD(x1,y1,x2,y2){
-  // control points give a gentle curve
-  const dx = x2 - x1, dy = y2 - y1;
-  const c1x = x1 + dx * 0.25;
-  const c1y = y1 + dy * 0.05;
-  const c2x = x2 - dx * 0.25;
-  const c2y = y2 - dy * 0.05;
-  return `M ${x1},${y1} C ${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
-}
-
-/* create arc paths (pre and post) for all non-zero entries */
-function createArcPaths(){
-  // remove existing arcs
-  arcsGroup.innerHTML = '';
-  for(const t of transKeys){
-    const tCenter = getCenterOf(t);
-    for(const p of placeKeys){
-      // pre: place -> transition
-      if(Pre[t][p] && Pre[t][p] > 0){
-        const pCenter = getCenterOf(p);
-        const d = cubicPathD(pCenter.x, pCenter.y, tCenter.x, tCenter.y);
-        const path = document.createElementNS(svgNS, 'path');
-        path.setAttribute('d', d);
-        path.setAttribute('id', `path_${p}_${t}`);
-        path.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--muted') || '#6b7280');
-        path.setAttribute('stroke-width', 2);
-        path.setAttribute('fill', 'none');
-        path.setAttribute('marker-end', 'url(#arrow)');
-        arcsGroup.appendChild(path);
-      }
-      // post: transition -> place
-      if(Post[t][p] && Post[t][p] > 0){
-        const pCenter = getCenterOf(p);
-        const d = cubicPathD(tCenter.x, tCenter.y, pCenter.x, pCenter.y);
-        const path = document.createElementNS(svgNS, 'path');
-        path.setAttribute('d', d);
-        path.setAttribute('id', `path_${t}_${p}`);
-        path.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--muted') || '#6b7280');
-        path.setAttribute('stroke-width', 2);
-        path.setAttribute('fill', 'none');
-        path.setAttribute('marker-end', 'url(#arrow)');
-        arcsGroup.appendChild(path);
-      }
-    }
-  }
-}
-
-/* ------------- Matrices HTML ------------- */
+/* ===================== Matrices rendering ===================== */
 function buildMatrixHTML(matrix){
   let html = '<table><thead><tr><th></th>';
   for(const t of transKeys) html += `<th>${t.toUpperCase()}</th>`;
   html += '</tr></thead><tbody>';
   for(const p of placeKeys){
     html += `<tr><th>${p.toUpperCase()}</th>`;
-    for(const t of transKeys){
-      html += `<td>${matrix[t][p] ?? 0}</td>`;
-    }
+    for(const t of transKeys) html += `<td>${matrix[t][p] ?? 0}</td>`;
     html += '</tr>';
   }
   html += '</tbody></table>';
@@ -341,170 +224,231 @@ document.getElementById('preTable').innerHTML = buildMatrixHTML(Pre);
 document.getElementById('postTable').innerHTML = buildMatrixHTML(Post);
 document.getElementById('wTable').innerHTML = buildMatrixHTML(W);
 
-/* ------------- Rendering static tokens and marquage ------------- */
-function renderMarquageChips(){
-  const container = document.getElementById('chips');
-  container.innerHTML = '';
-  for(const p of placeKeys){
-    const chip = document.createElement('div');
-    chip.className = 'chip';
-    chip.textContent = `${p.toUpperCase()} = ${places[p]}`;
-    container.appendChild(chip);
+/* ===================== SVG / arcs / tokens ===================== */
+const svgNS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('petri');
+const arcsGroup = document.getElementById('arcs');
+
+function getCenter(id){
+  const el = document.getElementById(id);
+  if(!el) return null;
+  if(el.tagName.toLowerCase() === 'circle'){
+    return { x: +el.getAttribute('cx'), y: +el.getAttribute('cy') };
+  } else if(el.tagName.toLowerCase() === 'rect'){
+    const x = +el.getAttribute('x'), y = +el.getAttribute('y');
+    const w = +el.getAttribute('width'), h = +el.getAttribute('height');
+    return { x: x + w/2, y: y + h/2 };
+  }
+  return null;
+}
+function cubicPathD(x1,y1,x2,y2, bend=0.25){
+  const dx = x2 - x1, dy = y2 - y1;
+  const c1x = x1 + dx * bend;
+  const c1y = y1 + dy * 0.08;
+  const c2x = x2 - dx * bend;
+  const c2y = y2 - dy * 0.08;
+  return `M ${x1},${y1} C ${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
+}
+
+/* create colored arc paths for all Pre/Post */
+function createArcPaths(){
+  arcsGroup.innerHTML = ''; // clear
+  for(const t of transKeys){
+    const tC = getCenter(t);
+    for(const p of placeKeys){
+      // Pre: place -> transition (grey)
+      if((Pre[t][p]||0) > 0){
+        const pC = getCenter(p);
+        const d = cubicPathD(pC.x, pC.y, tC.x, tC.y, 0.28);
+        const path = document.createElementNS(svgNS,'path');
+        path.setAttribute('d', d);
+        path.setAttribute('id', `path_pre_${p}_${t}`);
+        path.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pre-stroke') || '#9ca3af');
+        path.setAttribute('stroke-width', 2);
+        path.setAttribute('fill','none');
+        path.setAttribute('marker-end','url(#arrowPre)');
+        arcsGroup.appendChild(path);
+      }
+      // Post: transition -> place (green)
+      if((Post[t][p]||0) > 0){
+        const pC = getCenter(p);
+        const d = cubicPathD(tC.x, tC.y, pC.x, pC.y, 0.22);
+        const path = document.createElementNS(svgNS,'path');
+        path.setAttribute('d', d);
+        path.setAttribute('id', `path_post_${t}_${p}`);
+        path.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--post-stroke') || '#10b981');
+        path.setAttribute('stroke-width', 2);
+        path.setAttribute('fill','none');
+        path.setAttribute('marker-end','url(#arrowPost)');
+        arcsGroup.appendChild(path);
+      }
+    }
   }
 }
 
+/* draw static tokens (current marking) */
 function clearStaticTokens(){
-  svg.querySelectorAll('.staticToken').forEach(el => el.remove());
-  svg.querySelectorAll('.staticNum').forEach(el => el.remove());
+  svg.querySelectorAll('.staticToken').forEach(e=>e.remove());
+  svg.querySelectorAll('.staticNum').forEach(e=>e.remove());
 }
-
 function drawStaticTokens(){
   clearStaticTokens();
   for(const p of placeKeys){
     const count = places[p] || 0;
     if(count === 0) continue;
-    const c = document.getElementById(p);
-    const cx = Number(c.getAttribute('cx')), cy = Number(c.getAttribute('cy'));
+    const el = document.getElementById(p);
+    const cx = +el.getAttribute('cx'), cy = +el.getAttribute('cy');
     if(count <= 5){
       for(let i=0;i<count;i++){
-        const tok = document.createElementNS(svgNS,'circle');
-        tok.classList.add('staticToken');
-        tok.setAttribute('r', 6);
+        const c = document.createElementNS(svgNS,'circle');
+        c.classList.add('staticToken');
+        c.setAttribute('r',6);
         const offset = (i - (count-1)/2) * 14;
-        tok.setAttribute('cx', cx + offset);
-        tok.setAttribute('cy', cy);
-        tok.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--token-fill') || '#dc2626');
-        tok.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--token-stroke') || '#facc15');
-        svg.appendChild(tok);
+        c.setAttribute('cx', cx + offset);
+        c.setAttribute('cy', cy);
+        c.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--token-fill') || '#dc2626');
+        c.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--token-stroke') || '#facc15');
+        svg.appendChild(c);
       }
     } else {
-      const tok = document.createElementNS(svgNS,'circle');
-      tok.classList.add('staticToken');
-      tok.setAttribute('r', 10);
-      tok.setAttribute('cx', cx);
-      tok.setAttribute('cy', cy);
-      tok.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--token-fill') || '#dc2626');
-      tok.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--token-stroke') || '#facc15');
-      svg.appendChild(tok);
-      const num = document.createElementNS(svgNS,'text');
-      num.classList.add('staticNum');
-      num.setAttribute('x', cx);
-      num.setAttribute('y', cy + 4);
-      num.setAttribute('text-anchor','middle');
-      num.setAttribute('fill','#ffffff');
-      num.setAttribute('font-size','11');
-      num.setAttribute('font-weight','700');
-      num.textContent = count;
-      svg.appendChild(num);
+      const c = document.createElementNS(svgNS,'circle');
+      c.classList.add('staticToken');
+      c.setAttribute('r',10);
+      c.setAttribute('cx', cx);
+      c.setAttribute('cy', cy);
+      c.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--token-fill') || '#dc2626');
+      c.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--token-stroke') || '#facc15');
+      svg.appendChild(c);
+      const n = document.createElementNS(svgNS,'text');
+      n.classList.add('staticNum');
+      n.setAttribute('x', cx);
+      n.setAttribute('y', cy + 4);
+      n.setAttribute('text-anchor','middle');
+      n.setAttribute('fill','#fff');
+      n.setAttribute('font-size','11');
+      n.setAttribute('font-weight','700');
+      n.textContent = count;
+      svg.appendChild(n);
     }
   }
   renderMarquageChips();
 }
 
-/* ------------- Animation helpers ------------- */
-function animateAlongPath(pathEl, duration = 600, r = 6){
-  return new Promise(resolve => {
-    const len = pathEl.getTotalLength();
+/* update chips (bottom right) */
+function renderMarquageChips(){
+  const c = document.getElementById('chips');
+  c.innerHTML = '';
+  for(const p of placeKeys){
+    const d = document.createElement('div');
+    d.className = 'chip';
+    d.textContent = `${p.toUpperCase()} = ${places[p] || 0}`;
+    c.appendChild(d);
+  }
+}
+
+/* ================= animation engine ================= */
+function animateAlongPath(path, duration=600, r=6){
+  return new Promise(resolve=>{
+    const len = path.getTotalLength();
     const token = document.createElementNS(svgNS,'circle');
     token.classList.add('movingToken');
     token.setAttribute('r', r);
+    token.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--token-fill') || '#dc2626');
+    token.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--token-stroke') || '#facc15');
     svg.appendChild(token);
     let start = null;
     function step(ts){
       if(!start) start = ts;
       const t = Math.min(1, (ts - start) / duration);
-      const pt = pathEl.getPointAtLength(t * len);
+      const pt = path.getPointAtLength(t * len);
       token.setAttribute('cx', pt.x);
       token.setAttribute('cy', pt.y);
       if(t < 1) requestAnimationFrame(step);
-      else {
-        token.remove();
-        resolve();
-      }
+      else { token.remove(); resolve(); }
     }
     requestAnimationFrame(step);
   });
 }
 
-/* ------------- Transition firing (animation + logic) ------------- */
+/* =============== firing logic (with animations) =============== */
 let firingSet = new Set();
 
 function isEnabled(t){
   for(const p of placeKeys){
-    if((Pre[t][p]||0) > (places[p] || 0)) return false;
+    if((Pre[t][p]||0) > (places[p]||0)) return false;
   }
   return true;
 }
 
+function flashTransition(t, ok){
+  const el = document.getElementById(t);
+  el.classList.add('transition-flick');
+  el.style.opacity = ok ? '1' : '0.5';
+  setTimeout(()=> { el.style.opacity = ''; el.classList.remove('transition-flick'); }, 240);
+}
+
 async function fireTransition(t){
-  if(!isEnabled(t)){ log(`${t.toUpperCase()} non franchissable`); flashTransition(t, false); return; }
-  if(firingSet.has(t)){ return; } // déjà en cours
+  if(!isEnabled(t)){ log(`${t.toUpperCase()} non franchissable`); flashTransition(t,false); return; }
+  if(firingSet.has(t)) return;
   firingSet.add(t);
   const rect = document.getElementById(t);
   rect.classList.add('firing');
 
-  // 1) input animations: for each pre token, animate from place -> transition
-  const inputPromises = [];
+  // 1) consumption: animate place -> transition for each Pre token
+  const consumePromises = [];
   for(const p of placeKeys){
-    const needed = Pre[t][p] || 0;
-    for(let k=0;k<needed;k++){
-      const pathId = `path_${p}_${t}`;
+    const need = Pre[t][p] || 0;
+    for(let k=0;k<need;k++){
+      const pathId = `path_pre_${p}_${t}`;
       const pathEl = document.getElementById(pathId);
-      if(!pathEl) continue;
-      // logically remove token now (so static tokens update)
+      // logically remove token now so static tokens update
       places[p] = Math.max(0, (places[p]||0) - 1);
       drawStaticTokens();
-      // animate
-      inputPromises.push(animateAlongPath(pathEl, 600, 6));
+      if(pathEl){
+        consumePromises.push(animateAlongPath(pathEl, 480, 6));
+      } else {
+        // no path (shouldn't happen for Pre>0), just small pause
+        consumePromises.push(new Promise(r=>setTimeout(r,120)));
+      }
     }
   }
-  if(inputPromises.length > 0) log(`${t.toUpperCase()} tirée — consommation en cours`);
-  await Promise.all(inputPromises);
+  if(consumePromises.length) log(`${t.toUpperCase()} : consommation en cours`);
+  await Promise.all(consumePromises);
 
-  // small pause
-  await new Promise(res=>setTimeout(res, 150));
+  // short pause
+  await new Promise(r=>setTimeout(r, 160));
 
-  // 2) output animations: animate token(s) from transition -> each post place
-  const outputPromises = [];
+  // 2) production: animate transition -> place for each Post token
+  const producePromises = [];
   for(const p of placeKeys){
-    const produced = Post[t][p] || 0;
-    for(let k=0;k<produced;k++){
-      const pathId = `path_${t}_${p}`;
+    const prod = Post[t][p] || 0;
+    for(let k=0;k<prod;k++){
+      const pathId = `path_post_${t}_${p}`;
       const pathEl = document.getElementById(pathId);
-      if(!pathEl) continue;
-      // animate along path; on arrival, increment logical marking & redraw
-      const prom = animateAlongPath(pathEl, 700, 6).then(()=>{
+      if(pathEl){
+        const pr = animateAlongPath(pathEl, 700, 6).then(()=>{
+          places[p] = (places[p]||0) + 1;
+          drawStaticTokens();
+        });
+        producePromises.push(pr);
+      } else {
+        // no path -> directly increment
         places[p] = (places[p]||0) + 1;
         drawStaticTokens();
-      });
-      outputPromises.push(prom);
+      }
     }
   }
-  if(outputPromises.length === 0){
-    // no outputs: still update UI
-    log(`${t.toUpperCase()} tirée — sans production`);
-  } else {
-    log(`${t.toUpperCase()} — production en cours`);
-  }
-
-  await Promise.all(outputPromises);
+  if(producePromises.length) log(`${t.toUpperCase()} : production en cours`);
+  await Promise.all(producePromises);
 
   rect.classList.remove('firing');
   firingSet.delete(t);
-  updateTransitionUI();
+  updateTransitionsUI();
   log(`${t.toUpperCase()} — terminé`);
 }
 
-/* flash transition when trying to fire an unavailable transition */
-function flashTransition(t, success){
-  const el = document.getElementById(t);
-  const orig = el.style.fill;
-  el.style.fill = success ? 'var(--transition-active)' : 'var(--transition-disabled)';
-  setTimeout(()=> el.style.fill = orig, 260);
-}
-
-/* ------------- UI helpers ------------- */
-function updateTransitionUI(){
+/* update transitions UI (enable/disable) */
+function updateTransitionsUI(){
   for(const t of transKeys){
     const el = document.getElementById(t);
     if(!el) continue;
@@ -513,42 +457,51 @@ function updateTransitionUI(){
   }
 }
 
-/* ------------- Log ------------- */
+/* =============== UI helpers =============== */
 function log(msg){
-  const logDiv = document.getElementById('log');
+  const l = document.getElementById('log');
   const time = new Date().toLocaleTimeString();
-  logDiv.textContent = `[${time}] ${msg}\n` + logDiv.textContent;
+  l.textContent = `[${time}] ${msg}\n` + l.textContent;
 }
 
-/* ------------- Attach events & init ------------- */
+/* =============== Attach events & controls =============== */
 for(const t of transKeys){
   const el = document.getElementById(t);
+  if(!el) continue;
   el.addEventListener('click', ()=> fireTransition(t));
   el.style.cursor = 'pointer';
 }
+
 document.getElementById('resetBtn').addEventListener('click', ()=>{
-  for(const p of placeKeys) places[p] = initialMarking[p];
+  places = JSON.parse(JSON.stringify(initialMarking));
   drawStaticTokens();
-  updateTransitionUI();
+  updateTransitionsUI();
   document.getElementById('log').textContent = '';
   log('Reset → marquage initial');
 });
+
 document.getElementById('autoBtn').addEventListener('click', async ()=>{
-  log('Auto-step démarré (séquence simple).');
+  log('Auto-step démarré (séquence heuristique).');
   const seq = ['t1','t2','t3','t4','t5'];
-  for(let r=0;r<3;r++){
+  // repeat until no transition enabled or max cycles
+  for(let cycle=0; cycle<6; cycle++){
+    let progressed = false;
     for(const t of seq){
-      if(isEnabled(t)) await fireTransition(t);
-      await new Promise(res=>setTimeout(res, 300));
+      if(isEnabled(t)){
+        progressed = true;
+        await fireTransition(t);
+        await new Promise(r=>setTimeout(r,240));
+      }
     }
+    if(!progressed) break;
   }
   log('Auto-step terminé.');
 });
 
-/* ------------- Start ------------- */
+/* ===================== Init ===================== */
 createArcPaths();
 drawStaticTokens();
-updateTransitionUI();
+updateTransitionsUI();
 log('Simulateur prêt — clique sur une transition pour l\'exécuter.');
 </script>
 </body>
